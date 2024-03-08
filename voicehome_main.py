@@ -1,23 +1,16 @@
-from speech_recognition_handler import recognize_speech_from_mic, advanced_language_exercise
-from hue_light_controller import control_light
-from environmental_manager import get_current_weather  
+import requests
 
-def main():
-    print("VoiceHome+ System is now active. Speak a command in Vietnamese.")
-    while True:
-        command = recognize_speech_from_mic()
-        if command:
-            if 'bật đèn' in command:
-                control_light(light_id=1, state=True)  #Used to turn on light
-            elif 'tắt đèn' in command:
-                control_light(light_id=1, state=False)  # Used to turn off light
-            elif 'thời tiết' in command:
-                weather = get_current_weather("Ho Chi Minh")
-                print(f"Current weather in Ho Chi Minh City is: {weather}.")
-            elif 'bài tập ngôn ngữ' in command:
-                advanced_language_exercise()
-            else:
-                print("Sorry, I didn't catch that. Can you please repeat?")
-                
-if __name__ == "__main__":
-    main()
+BRIDGE_IP = '192.168.1.2'
+USER_TOKEN = '1028d66426293e821ecfd9ef1a0731df'
+
+def control_light(light_id, state=None, brightness=None, color=None, color_temp=None):
+    url = f'http://{BRIDGE_IP}/api/{USER_TOKEN}/lights/{light_id}/state'
+    command = {"on": state} if state is not None else {}
+    if brightness: command["bri"] = brightness
+    if color: command["hue"] = color
+    if color_temp: command["ct"] = color_temp
+    response = requests.put(url, json=command)
+    print(f"Response from Hue for Light {light_id}: {response.json()}")
+
+# Will add more functions as needed, such as set_temperature(), change_light_color(), etc.
+
