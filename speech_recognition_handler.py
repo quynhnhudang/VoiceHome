@@ -1,20 +1,32 @@
-
 import speech_recognition as sr
+from random import choice
 
-def recognize_speech_from_mic(language='en-US'):
+def recognize_speech_from_mic():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        print("Adjusting for ambient noise... Please wait.")
-        recognizer.adjust_for_ambient_noise(source, duration=2)  # Adjust depending on ambient noise levels
-        print(f"Listening for commands in {language}...")
+        recognizer.adjust_for_ambient_noise(source)
+        print("Listening for your command (Vietnamese)...")
         audio = recognizer.listen(source)
-
         try:
-            # Language parameter allows switching between Vietnamese and English
-            speech_text = recognizer.recognize_google(audio, language=language)
-            print(f"Interpreted Command: {speech_text}")
-            return {'success': True, 'error': None, 'transcription': speech_text.lower()}
+            speech_text = recognizer.recognize_google(audio, language='vi-VN')
+            return speech_text.lower()
         except sr.UnknownValueError:
-            return {'success': False, 'error': "Unable to understand the command", 'transcription': None}
+            print("I couldn't understand that.")
+            return None
         except sr.RequestError as e:
-            return {'success': False, 'error': f"API request failed: {e}", 'transcription': None}
+            print(f"Speech service error: {e}")
+            return None
+
+def advanced_language_exercise():
+    exercises = [
+        {"prompt": "Increase the brightness", "keywords": ["tăng", "độ sáng"]},
+        {"prompt": "Decrease the volume", "keywords": ["giảm", "âm lượng"]},
+        # Add more exercises as needed
+    ]
+    exercise = choice(exercises)
+    print(f"Please construct a sentence using the phrase (in Vietnamese): '{exercise['prompt']}'")
+    response = recognize_speech_from_mic()
+    if response and all(keyword in response for keyword in exercise['keywords']):
+        print("Excellent! You've correctly used all the keywords.")
+    else:
+        print("Try again, and remember to use all the required keywords.")
